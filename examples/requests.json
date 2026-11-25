@@ -1,0 +1,59 @@
+{
+  "description": "Contoh referensi, bukan runner. Placeholder dan ID harus diganti dari sesi/API yang sah.",
+  "http": [
+    {
+      "name": "login",
+      "method": "POST",
+      "url": "<API_BASE_URL>/api/v1/user/loginv2",
+      "headers": { "Content-Type": "application/x-www-form-urlencoded" },
+      "form": { "email": "<login-identity>", "password": "<secret-from-host>" }
+    },
+    {
+      "name": "authorized_permissions",
+      "method": "GET",
+      "url": "<API_BASE_URL>/api/v2/user/fetchAuthorizedPermissionProfiles",
+      "headers": { "Authorization": "Bearer <session-token>" }
+    },
+    {
+      "name": "list_transactions",
+      "method": "GET",
+      "url": "<API_BASE_URL>/api/v1/transaksikeuangan/lists?idAkun=<owned-account-id>",
+      "headers": { "Authorization": "Bearer <session-token>" }
+    },
+    {
+      "name": "create_account_after_approval",
+      "method": "POST",
+      "url": "<API_BASE_URL>/api/v1/akunkeuangan",
+      "headers": { "Authorization": "Bearer <session-token>", "Content-Type": "application/json" },
+      "json": { "name": "<requested-account-name>", "accountType": 1, "lifecycleEntity": { "activationType": { "identActivationType": 1 } } },
+      "note": "accountType/activation type mengikuti keputusan pengguna dan kontrak backend, bukan default universal."
+    }
+  ],
+  "existingMcp": {
+    "endpoint": "<UI_ORIGIN>/__akun/ai/mcp",
+    "method": "POST",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json, text/event-stream",
+      "Authorization": "Bearer <session-token>",
+      "x-akun-target": "<allowed-backend-origin>",
+      "MCP-Protocol-Version": "2025-11-25"
+    },
+    "initialize": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "method": "initialize",
+      "params": { "protocolVersion": "2025-11-25", "capabilities": {}, "clientInfo": { "name": "fintrack-reference-client", "version": "0.1.0" } }
+    },
+    "initialized": { "jsonrpc": "2.0", "method": "notifications/initialized" },
+    "listTools": { "jsonrpc": "2.0", "id": 2, "method": "tools/list", "params": {} },
+    "readContext": { "jsonrpc": "2.0", "id": 3, "method": "tools/call", "params": { "name": "get_context", "arguments": {} } },
+    "prepareExample": {
+      "jsonrpc": "2.0",
+      "id": 4,
+      "method": "tools/call",
+      "params": { "name": "prepare_action", "arguments": { "tool": "create_category", "arguments": { "accountId": 1, "name": "<requested-category-name>", "type": 2 } } }
+    },
+    "note": "Jalankan initialize lalu initialized. Contoh berhenti pada preview; eksekusi mutasi memerlukan approval host dan metadata dari preview aktual."
+  }
+}
