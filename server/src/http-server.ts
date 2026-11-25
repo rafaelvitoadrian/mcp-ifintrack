@@ -124,6 +124,36 @@ export function createHttpApp(): express.Express {
   });
 
   /**
+   * Host logout / switch-account endpoint (POST /auth/logout)
+   * Terminates an active MCP HTTP session so the host can switch to another user account cleanly.
+   */
+  app.post("/auth/logout", async (req: Request, res: Response) => {
+    const token = extractBearerToken(req);
+    const sessionId = String(
+      req.headers["mcp-session-id"] || req.body?.sessionId || "",
+    ).trim();
+
+    if (!sessionId) {
+      res.status(400).json({ error: "sessionId (atau header mcp-session-id) wajib diisi." });
+      return;
+    }
+
+    const session = getSession(sessionId);
+    if (session && token && hashToken(token) !== hashToken(session.token)) {
+      res.status(403).json({ error: "Token tidak cocok dengan pemilik sesi." });
+      return;
+    }
+
+    const managed = activeTransports.get(sessionId);
+    if (managed) {
+      await managed.transport.close().catch(() => {});
+      activeTransports.delete(sessionId);
+    }
+    deleteSession(sessionId);
+    res.status(200).json({ ok: true, message: "Sesi berhasil diakhiri. Silakan login ulang dengan akun baru." });
+  });
+
+  /**
    * Host approval endpoint (POST /auth/approve)
    * Allows the host UI to record user approval for a pending preview requestId.
    */

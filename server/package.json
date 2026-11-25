@@ -8,6 +8,8 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "start:http": "node dist/http-server.js",
+    "setup": "node scripts/setup-account.mjs",
+    "switch-account": "node scripts/setup-account.mjs",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
